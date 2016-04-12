@@ -1,0 +1,10 @@
+Misspelled names work gracefully:
+    To test it type in "staphen curr", this will provide results for Stephen Curry.
+    To implement this I created stored functions in the database using SQL. The function is called levenshtein and it takes in two parameters: user input and column to search. I set the edit distance to 0-2 because I did not want the spell checking to hinder performance of the webpage. When a user performs a search the database will check if the user input is within 2 edit distance(s) away from any name in the database. If it is, then it returns that tuple as a result.
+    
+Results page looks really really nice (CSS):
+    To implement this I used CSS and the appropraite HTML tags.
+    
+Embedded photos of players:
+    To test this perform a search, if the player's headshot is available then it will be displayed, if not a default profile picture will be displayed.
+    To implement this I used an API I found on GitHub. I take the user input and separate the name into first name and last name using the explode and implode functions. I then use the first and last name to perform an API request for the player's headshot. I set the resulting file as the src to the img tag in the stats box.
