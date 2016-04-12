@@ -1,0 +1,29 @@
+CREATE TABLE NBA_Stats_2015_2016(
+    name varchar(31) NOT NULL,
+    team varchar(31) NOT NULL,
+    games_played int NOT NULL,
+    minutes float NOT NULL,
+    FG_made float NOT NULL,
+    FG_attempted float NOT NULL,
+    FG_percentage float NOT NULL,
+    3PT_made float NOT NULL,
+    3PT_attempted float NOT NULL,
+    3PT_percentage float NOT NULL,
+    FT_made float NOT NULL,
+    FT_attempted float NOT NULL,
+    FT_percentage float NOT NULL,
+    offensive_rebounds float NOT NULL,
+    defensive_rebounds float NOT NULL,
+    total_rebounds float NOT NULL,
+    assists float NOT NULL,
+    turnovers float NOT NULL,
+    steals float NOT NULL,
+    blocks float NOT NULL,
+    personal_fouls float NOT NULL,
+    points_per_game float NOT NULL,
+    
+    PRIMARY KEY(name),
+    INDEX(name)
+)ENGINE=INNODB;
+
+name,team,games_played,minutes,FG_made,FG_attempted,FG_percentage,3PT_made,3PT_attempted,3PT_percentage,FT_made,FT_attempted,FT_percentage,offensive_rebounds,defensive_rebounds,total_rebounds,assists,turnovers,steals,blocks,personal_fouls,points_per_game

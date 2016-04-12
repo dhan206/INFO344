@@ -1,0 +1,106 @@
+!SESSION 2016-04-07 13:26:26.598 -----------------------------------------------
+eclipse.buildId=4.5.2.M20160212-1500
+java.version=1.7.0_71
+java.vendor=Oracle Corporation
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.php.product -keyring /Users/dhan206/.eclipse_keyring -showlocation
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.php.product -keyring /Users/dhan206/.eclipse_keyring -showlocation
+
+!ENTRY org.eclipse.core.net 1 0 2016-04-07 13:26:50.223
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
+
+!ENTRY org.eclipse.php.core 4 10001 2016-04-10 12:46:41.330
+!MESSAGE PHPCore plugin internal error
+!STACK 0
+java.lang.NullPointerException
+	at org.eclipse.php.internal.core.codeassist.strategies.MethodKeywordStrategy.filterKeyword(MethodKeywordStrategy.java:68)
+	at org.eclipse.php.internal.core.codeassist.strategies.KeywordsStrategy.apply(KeywordsStrategy.java:55)
+	at org.eclipse.php.internal.core.codeassist.strategies.LocalMethodElementsCompositeStrategy.apply(LocalMethodElementsCompositeStrategy.java:51)
+	at org.eclipse.php.internal.core.codeassist.PHPCompletionEngine.complete(PHPCompletionEngine.java:108)
+	at org.eclipse.php.internal.core.codeassist.PHPCompletionEngine.complete(PHPCompletionEngine.java:61)
+	at org.eclipse.dltk.internal.core.Openable$CompletionThread.run(Openable.java:503)
+	at org.eclipse.dltk.internal.core.Openable$CompletionThread.run(Openable.java:484)
+
+!ENTRY org.eclipse.php.core 4 10001 2016-04-10 14:38:11.635
+!MESSAGE PHPCore plugin internal error
+!STACK 0
+java.lang.NullPointerException
+	at org.eclipse.php.internal.core.codeassist.strategies.MethodKeywordStrategy.filterKeyword(MethodKeywordStrategy.java:68)
+	at org.eclipse.php.internal.core.codeassist.strategies.KeywordsStrategy.apply(KeywordsStrategy.java:55)
+	at org.eclipse.php.internal.core.codeassist.strategies.LocalMethodElementsCompositeStrategy.apply(LocalMethodElementsCompositeStrategy.java:51)
+	at org.eclipse.php.internal.core.codeassist.PHPCompletionEngine.complete(PHPCompletionEngine.java:108)
+	at org.eclipse.php.internal.core.codeassist.PHPCompletionEngine.complete(PHPCompletionEngine.java:61)
+	at org.eclipse.dltk.internal.core.Openable$CompletionThread.run(Openable.java:503)
+	at org.eclipse.dltk.internal.core.Openable$CompletionThread.run(Openable.java:484)
+
+!ENTRY org.eclipse.php.core 4 10001 2016-04-10 14:38:21.838
+!MESSAGE PHPCore plugin internal error
+!STACK 0
+java.lang.NullPointerException
+	at org.eclipse.php.internal.core.codeassist.strategies.MethodKeywordStrategy.filterKeyword(MethodKeywordStrategy.java:68)
+	at org.eclipse.php.internal.core.codeassist.strategies.KeywordsStrategy.apply(KeywordsStrategy.java:55)
+	at org.eclipse.php.internal.core.codeassist.strategies.LocalMethodElementsCompositeStrategy.apply(LocalMethodElementsCompositeStrategy.java:51)
+	at org.eclipse.php.internal.core.codeassist.PHPCompletionEngine.complete(PHPCompletionEngine.java:108)
+	at org.eclipse.php.internal.core.codeassist.PHPCompletionEngine.complete(PHPCompletionEngine.java:61)
+	at org.eclipse.dltk.internal.core.Openable$CompletionThread.run(Openable.java:503)
+	at org.eclipse.dltk.internal.core.Openable$CompletionThread.run(Openable.java:484)
+
+!ENTRY org.eclipse.php.ui 4 10001 2016-04-10 22:15:04.311
+!MESSAGE PHP ui plugin internal error
+!STACK 1
+org.eclipse.dltk.core.ModelException: $imagesize [in displayPlayer [in index.php [in <default> [in <project root> [in  ]]]]] does not exist
+	at org.eclipse.dltk.internal.core.ModelElement.newNotPresentException(ModelElement.java:270)
+	at org.eclipse.dltk.internal.core.ModelElement.openWhenClosed(ModelElement.java:208)
+	at org.eclipse.dltk.internal.core.ModelElement.getElementInfo(ModelElement.java:183)
+	at org.eclipse.dltk.internal.core.ModelElement.getElementInfo(ModelElement.java:165)
+	at org.eclipse.dltk.internal.core.Member.getFlags(Member.java:50)
+	at org.eclipse.php.internal.ui.documentation.PHPDocumentationProvider.isFinal(PHPDocumentationProvider.java:258)
+	at org.eclipse.php.internal.ui.documentation.PHPDocumentationProvider.getConstantValue(PHPDocumentationProvider.java:221)
+	at org.eclipse.php.internal.ui.documentation.PHPDocumentationProvider.getInfo(PHPDocumentationProvider.java:90)
+	at org.eclipse.dltk.ui.documentation.ScriptDocumentationAccess$2.getInfo(ScriptDocumentationAccess.java:158)
+	at org.eclipse.dltk.ui.documentation.ScriptDocumentationAccess.merge(ScriptDocumentationAccess.java:88)
+	at org.eclipse.dltk.ui.documentation.ScriptDocumentationAccess.getHTMLContentReader(ScriptDocumentationAccess.java:150)
+	at org.eclipse.dltk.ui.text.completion.ProposalInfo.getHTMLContentReader(ProposalInfo.java:183)
+	at org.eclipse.dltk.ui.text.completion.ProposalInfo.extractScriptdoc(ProposalInfo.java:154)
+	at org.eclipse.dltk.ui.text.completion.ProposalInfo.computeInfo(ProposalInfo.java:94)
+	at org.eclipse.dltk.ui.text.completion.ProposalInfo.getInfo(ProposalInfo.java:71)
+	at org.eclipse.dltk.ui.text.completion.AbstractScriptCompletionProposal.getAdditionalProposalInfo(AbstractScriptCompletionProposal.java:489)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$3.run(AdditionalInfoController.java:106)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:55)
+!SUBENTRY 1 org.eclipse.dltk.core 4 969 2016-04-10 22:15:04.321
+!MESSAGE $imagesize [in displayPlayer [in index.php [in <default> [in <project root> [in  ]]]]] does not exist
+
+!ENTRY org.eclipse.php.debug.core 4 4 2016-04-11 10:06:00.255
+!MESSAGE class org.eclipse.php.internal.debug.core.xdebug.dbgp.session.DBGpSession : Unexpected null from readResponse waiting for Init
+
+!ENTRY org.eclipse.php.debug.core 4 4 2016-04-11 10:06:30.052
+!MESSAGE class org.eclipse.php.internal.debug.core.xdebug.dbgp.session.DBGpSession : Unexpected null from readResponse waiting for Init
+!SESSION 2016-04-11 11:43:57.898 -----------------------------------------------
+eclipse.buildId=4.5.2.M20160212-1500
+java.version=1.7.0_71
+java.vendor=Oracle Corporation
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.php.product -keyring /Users/dhan206/.eclipse_keyring -showlocation
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.php.product -keyring /Users/dhan206/.eclipse_keyring -showlocation
+
+!ENTRY org.eclipse.core.net 1 0 2016-04-11 11:44:05.935
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
+
+!ENTRY org.eclipse.php.debug.core 4 4 2016-04-11 12:02:43.824
+!MESSAGE class org.eclipse.php.internal.debug.core.xdebug.dbgp.session.DBGpSession : Unexpected null from readResponse waiting for Init
+
+!ENTRY org.eclipse.php.debug.core 4 4 2016-04-11 12:32:06.176
+!MESSAGE class org.eclipse.php.internal.debug.core.xdebug.dbgp.session.DBGpSession : Unexpected null from readResponse waiting for Init
+
+!ENTRY org.eclipse.php.debug.core 4 4 2016-04-11 13:00:42.068
+!MESSAGE class org.eclipse.php.internal.debug.core.xdebug.dbgp.session.DBGpSession : Unexpected null from readResponse waiting for Init
+!SESSION 2016-04-11 15:14:18.052 -----------------------------------------------
+eclipse.buildId=4.5.2.M20160212-1500
+java.version=1.7.0_71
+java.vendor=Oracle Corporation
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.php.product -keyring /Users/dhan206/.eclipse_keyring -showlocation
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.php.product -keyring /Users/dhan206/.eclipse_keyring -showlocation
+
+!ENTRY org.eclipse.core.net 1 0 2016-04-11 15:14:26.252
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences

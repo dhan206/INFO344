@@ -1,0 +1,61 @@
+body {
+    background-image: url('../img/nbamap.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding-top: 120px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#inputForm {
+    max-height: 75vh;
+    width: 75vw;
+    background-color: rgba(0, 0, 0, .75);
+    padding: 2em;
+    margin: auto;
+    border-radius: 10px;
+    color: white;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+.statsBox {
+    padding: 1em;
+    overflow: hidden;
+    border: 1px grey solid;
+    border-radius: 10px;
+    margin-top: 1em;
+    background-color: black;
+}
+
+.headshot {
+    float: left;
+    height: 100px;
+    width: 138px;
+    margin-right: 1em;
+}
+
+.heading h2, .heading h4 {
+    margin: 0;
+    display: inline-block;
+    margin-bottom: .5em;
+}
+
+.heading h4 {
+    float: right;
+}
+
+.statsTable {
+    min-width: 75%;
+    color: gray;
+}
+
+footer {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    color: white;
+    height: 25px;
+    padding: 5px;
+    display: block;
+    text-align: right;
+}
