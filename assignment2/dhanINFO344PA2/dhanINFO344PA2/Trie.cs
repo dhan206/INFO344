@@ -8,40 +8,47 @@ namespace dhanINFO344PA2
     public class Trie
     {
         private TrieNode root;
-
+        
+        //value to indicate number of query suggestions
+        public static int maxResults = 10; 
+        
         public Trie()
         {
             root = new TrieNode();
         }
 
+        /// <summary>
+        /// is the trie empty
+        /// </summary>
+        public bool isEmpty
+        {
+            get { return root.ChildNodes == null; }
+        }
+
+        /// <summary>
+        /// adds a word to the existing trie
+        /// </summary>
+        /// <param name="word"></param>
         public void AddWord(string word)
         {
-            if (word.Length > 0)
+            if (!string.IsNullOrEmpty(word))
             {
                 TrieNode currNode = this.root;
-                foreach (char c in word)
+                foreach (char c in word.ToLower())
                 {
-                    if (currNode.childNodes != null)
+                    if (currNode.ChildNodes != null && currNode.ChildNodes.ContainsKey(c))
                     {
-                        TrieNode match = currNode.childNodes.SingleOrDefault(n => n.character.Equals(c));
-                        if (match != null)
-                        {
-                            currNode = match;
-                        } else
-                        {
-                            TrieNode temp = new TrieNode(c, currNode);
-                            currNode.AddChild(temp);
-                            currNode = temp;
-                        }
+                        currNode = currNode.ChildNodes[c];
                     } else
                     {
-                        TrieNode temp = new TrieNode(c, currNode);
+                        //creates a new node if the current node doesn't have a childnode
+                        //with char c
+                        TrieNode temp = new TrieNode(c);
                         currNode.AddChild(temp);
                         currNode = temp;
                     }
-
                 }
-                currNode.isLeaf = true; //last node is a leaf (end of word)
+                currNode.IsLeaf = true; //last node is a leaf (end of word)
             }
         }
 
@@ -55,14 +62,18 @@ namespace dhanINFO344PA2
             TrieNode lastNode = root;
 
             //find the node that represents he last letter of the prefix
-            foreach (char c in prefix)
+            foreach (char c in prefix.ToLower()) 
             {
-                lastNode = lastNode.childNodes.SingleOrDefault(n => n.character.Equals(c));
+                if (lastNode.ChildNodes.ContainsKey(c))
+                {
+                    lastNode = lastNode.ChildNodes[c];
+                } else
+                {
+                    return new List<string> {"No results found starting with: '" + prefix + "'"}; 
+                }
             }
-
-            return lastNode.GetWords(new List<string>());
+            var list = new List<string>();
+            return lastNode.GetWords(ref list, prefix);
         }
-
-       
     }
 }
