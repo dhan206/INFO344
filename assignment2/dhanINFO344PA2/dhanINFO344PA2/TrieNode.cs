@@ -9,7 +9,7 @@ namespace dhanINFO344PA2
     public class TrieNode
     {
         public char Character { get; private set; }
-        public Dictionary<char, TrieNode> ChildNodes { get; set; } = null;
+        public Dictionary<char, TrieNode> ChildNodes { get; set; }
         public bool IsLeaf { get; set; } //indicates the last letter of a word
 
         public TrieNode()
@@ -29,7 +29,7 @@ namespace dhanINFO344PA2
         /// <param name="child"></param>
         public void AddChild(TrieNode child)
         {
-            if(this.ChildNodes == null)
+            if (this.ChildNodes == null)
             {
                 this.ChildNodes = new Dictionary<char, TrieNode>();
             }

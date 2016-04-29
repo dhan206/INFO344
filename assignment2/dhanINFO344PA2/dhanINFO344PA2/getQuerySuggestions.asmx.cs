@@ -36,60 +36,51 @@ namespace dhanINFO344PA2
         /// builds a trie from the provided filename
         /// </summary>
         [WebMethod]
-        public void BuildTrie()
+        public string BuildTrie()
         {
-            if (File.Exists(filename) && data.isEmpty)
+            if (!data.isEmpty)
+            {
+                data = new Trie();
+            }
+
+            int count = 0;
+            string lastWord = "a";
+            if (File.Exists(filename))
             {
                 using (StreamReader sr = new StreamReader(filename))
                 {
                     var brk = false;
-                    //var lastWord = "a";
-                    var count = 0;
                     var check = 0;
                     while (!sr.EndOfStream && !brk)
                     {
-                        try
+                        var line = sr.ReadLine();
+                        if (check < 5000)
                         {
-                            //quickly builds to 750mb
-                            if (GC.GetTotalMemory(false) <= (750 * 1024 * 1024))
+                            data.AddWord(line);
+                        }
+                        else
+                        {
+                            try
                             {
-                                data.AddWord(sr.ReadLine());
-                                count++;
+                                //ensures that 50mb is free for later use
+                                using (new MemoryFailPoint(50))
+                                {
+                                    check = 0;
+                                    data.AddWord(line);
+                                }
                             }
-                            else
+                            catch (Exception e)
                             {
-                                if (check < 1000)
-                                {
-                                    //var line = sr.ReadLine();
-                                    data.AddWord(sr.ReadLine());
-                                    count++;
-                                    //lastWord = line;
-                                }
-                                else
-                                {
-                                    //ensures that 50mb is free for later use
-                                    using (MemoryFailPoint mem = new MemoryFailPoint(50))
-                                    {
-                                        check = 0;
-                                        var line = sr.ReadLine();
-                                        data.AddWord(line);
-                                        mem.Dispose(); //free up memory
-                                        count++;
-                                        //lastWord = line;
-                                    }
-                                }
-                                check++;
+                                return "Last word added: '" + lastWord + "'. Count: " + count + ". Trie built: " + !data.isEmpty + ". Total Memory Used: " + GC.GetTotalMemory(true);
                             }
                         }
-                        catch (InsufficientMemoryException e)
-                        {
-                            //ignores exception and breaks out of building the trie
-                            brk = true;
-                            break;
-                        }
+                        count++;
+                        lastWord = line;
+                        check++;
                     }
                 }
             }
+            return "Last word added: '" + lastWord + "'. Count: " + count + ". Trie built: " + !data.isEmpty + ". Total Memory Used: " + GC.GetTotalMemory(true);
         }
 
         /// <summary>
@@ -101,28 +92,10 @@ namespace dhanINFO344PA2
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public List<string> SearchTrie(string prefix)
         {
-            //initialization
-            if(data.isEmpty)
-            {
-                if (File.Exists(filename))
-                {
-                    BuildTrie();
-                }
-                else
-                {
-                    DownloadWiki();
-                }
-            }
-
             //empty string returns empty results
             if (string.IsNullOrEmpty(prefix))
             {
                 return new List<string>();
-            }
-
-            if (data.isEmpty)
-            {
-                return new List<string> { "We're sorry, our setup is has not yet completed. Please try again later." };
             }
 
             return data.GetWords(prefix);
@@ -134,14 +107,8 @@ namespace dhanINFO344PA2
         /// </summary>
         /// <returns>if the filename exists or has been created (successful download)</returns>
         [WebMethod]
-        public bool DownloadWiki()
+        public string DownloadWiki()
         {
-            //file already exists, no need to redownload
-            if (File.Exists(filename))
-            {
-                return true;
-            }
-
             //connect to Azure
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
                 ConfigurationManager.AppSettings["StorageConnectionString"]);
@@ -159,7 +126,7 @@ namespace dhanINFO344PA2
                     blob.DownloadToFile(filename, FileMode.Create);
                 }
             }
-            return File.Exists(filename);
+            return "Wiki has been downloaded: " + File.Exists(filename);
         }
     }
 }

@@ -8,10 +8,10 @@ namespace dhanINFO344PA2
     public class Trie
     {
         private TrieNode root;
-        
+
         //value to indicate number of query suggestions
-        public static int maxResults = 10; 
-        
+        public static int maxResults = 10;
+
         public Trie()
         {
             root = new TrieNode();
@@ -36,17 +36,12 @@ namespace dhanINFO344PA2
                 TrieNode currNode = this.root;
                 foreach (char c in word.ToLower())
                 {
-                    if (currNode.ChildNodes != null && currNode.ChildNodes.ContainsKey(c))
+                    TrieNode value;
+                    if (currNode.ChildNodes == null || !currNode.ChildNodes.TryGetValue(c, out value))
                     {
-                        currNode = currNode.ChildNodes[c];
-                    } else
-                    {
-                        //creates a new node if the current node doesn't have a childnode
-                        //with char c
-                        TrieNode temp = new TrieNode(c);
-                        currNode.AddChild(temp);
-                        currNode = temp;
+                        currNode.AddChild(new TrieNode(c));
                     }
+                    currNode = currNode.ChildNodes[c];
                 }
                 currNode.IsLeaf = true; //last node is a leaf (end of word)
             }
@@ -62,14 +57,15 @@ namespace dhanINFO344PA2
             TrieNode lastNode = root;
 
             //find the node that represents he last letter of the prefix
-            foreach (char c in prefix.ToLower()) 
+            foreach (char c in prefix.ToLower().Trim())
             {
                 if (lastNode.ChildNodes.ContainsKey(c))
                 {
                     lastNode = lastNode.ChildNodes[c];
-                } else
+                }
+                else
                 {
-                    return new List<string> {"No results found starting with: '" + prefix + "'"}; 
+                    return new List<string> { "No results found starting with: '" + prefix + "'" };
                 }
             }
             var list = new List<string>();
