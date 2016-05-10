@@ -1,0 +1,70 @@
+﻿body {
+    background-color: white;
+    text-align: center;
+    color: white;
+    font-family: Helvetica, sans-serif;
+    font-size: 25px;
+}
+
+.dashboard {
+    width: 100%;
+}
+
+.dashboard > div {
+    height: 75px;
+    background-color: darkgray;
+    border-bottom: 1px solid white;
+    padding: 10px;
+}
+
+.dashboard .errors {
+    background-color: red;
+}
+
+.buttons {
+    margin: 20px 0;
+    width: 100%;
+}
+
+.buttons > input {
+    text-align: center;
+    color: white;
+    font-family: Helvetica, sans-serif;
+    font-size: 25px;
+    display: inline-block;
+    width: 30%;
+    height: 55px;
+    border: 1px solid lightgrey;
+    border-radius: 3px;
+}
+
+.buttons #start {
+    background-color: lightgreen;
+}
+
+.buttons #start:hover {
+    background-color: green;
+}
+
+.buttons #retrieve {
+    background-color: lightblue;
+}
+
+.buttons #retrieve:hover {
+    background-color: blue;
+}
+
+.buttons #clear {
+    background-color: lightcoral;
+}
+
+.buttons #clear:hover {
+    background-color: red;
+}
+
+.buttons > input:hover {
+    cursor: pointer;
+    background-color: darkgray;
+}
+
+
