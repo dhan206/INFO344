@@ -7,6 +7,7 @@ using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Services;
+using ClassLibrary1;
 
 namespace WebRole1
 {
@@ -19,28 +20,26 @@ namespace WebRole1
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
     // [System.Web.Script.Services.ScriptService]
     public class Admin : System.Web.Services.WebService
-    { 
-
+    {
+        public static AzureStorageConnection Azure = new AzureStorageConnection();
         [WebMethod]
-        public bool StartCrawling()
+        public string StartCrawling()
         {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["StorageConnectionString"]);
-            CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
-            CloudQueue queue = queueClient.GetQueueReference("derekhanpa3queue");
-            queue.CreateIfNotExists();
+            CloudQueueMessage messageStart = new CloudQueueMessage("Start: http://www.cnn.com, http://www.bleacherreport.com");
+            Azure.commandQueue.AddMessage(messageStart);
 
-            CloudQueueMessage messageCNN = new CloudQueueMessage("http://www.cnn.com");
-            CloudQueueMessage messageBR = new CloudQueueMessage("http://www.bleacherreport.com");
-            queue.AddMessage(messageCNN);
-            queue.AddMessage(messageBR);
-            return true;
+            //var URI = new Uri("http://www.cnn.com");
+            //var auth = URI.Authority;
+
+            return "The crawler has started";
         }
 
         [WebMethod]
-        public bool StopCrawling()
+        public string StopCrawling()
         {
-
-            return true;
+            CloudQueueMessage stopMessage = new CloudQueueMessage("stop");
+            Azure.commandQueue.AddMessage(stopMessage);
+            return "The crawler has been stopped.";
         }
 
         [WebMethod]
