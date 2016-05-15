@@ -12,38 +12,51 @@ namespace ClassLibrary1
 {
     public class XMLCrawler
     {
-        private AzureStorageConnection Azure;
-        private Queue<string> SitemapQueue;
-        public HashSet<string> DisallowList { get; private set; }
 
         public XMLCrawler()
         {
             Azure = new AzureStorageConnection();
             SitemapQueue = new Queue<string>();
-            DisallowList = new HashSet<string>();
+            DisallowList = new Dictionary<string, HashSet<string>>();
         }
+
+        private AzureStorageConnection Azure;
+        private Queue<string> SitemapQueue;
+        public Dictionary<string,HashSet<string>> DisallowList { get; private set; }
+        public List<string> entries = new List<string>();
 
         public void CrawlRobots(string url)
         {
             WebClient webClient = new WebClient();
             string content = webClient.DownloadString(url + "/robots.txt");
             string[] lines = content.Split('\n');
+
+            Uri uri = new Uri(url);
+            DisallowList.Add(getDomain(uri), new HashSet<string>());
+
             string site = "Sitemap: ";
             string disallow = "Disallow: ";
             foreach(string line in lines)
             {
                 if(line.StartsWith(site))
                 {
-                    SitemapQueue.Enqueue(line.Substring(line.IndexOf(site) + site.Length));
+                    Uri sitemapUri = new Uri(line.Substring(line.IndexOf(site) + site.Length));
+
+                    //filters for NBA only if the host is bleacherreport
+                    if ( !(sitemapUri.Host == "bleacherreport.com" && !sitemapUri.AbsolutePath.ToLower().Contains("nba")) )
+                    {
+                        SitemapQueue.Enqueue(sitemapUri.AbsoluteUri);
+                        entries.Add(sitemapUri.AbsoluteUri);
+                    }
                 } else if (line.StartsWith(disallow))
                 {
-                    DisallowList.Add(line.Substring(line.IndexOf(disallow) + disallow.Length));
+                    DisallowList[getDomain(uri)].Add(line.Substring(line.IndexOf(disallow) + disallow.Length));
                 }
             }
-            CrawlSitemaps();
+            //crawlSitemaps();
         }
 
-        private void CrawlSitemaps()
+        private void crawlSitemaps()
         {
             //restriction date: march 1st
             DateTime restriction = Convert.ToDateTime(ConfigurationManager.AppSettings["RestrictionDate"]);
@@ -54,37 +67,43 @@ namespace ClassLibrary1
                 xml.Load(SitemapQueue.Dequeue());
                 foreach (XmlNode node in xml.DocumentElement.ChildNodes)
                 {
-                    if (node["lastmod"] != null) //if date is specified
+                    if (node["lastmod"] != null)
                     {
-                        if (DateTime.Compare(restriction, Convert.ToDateTime(node["lastmod"].InnerText)) == -1)
+                        if (DateTime.Compare(Convert.ToDateTime(node["lastmod"].InnerText), restriction) == 1)
                         {
-                            AddToQueue(node);
+                            addToQueue(node);
                         }
-
                     } else
                     {
-                        AddToQueue(node);
+                        addToQueue(node);
                     }
                 }
             }
+             var one = 1;
         }
 
-        private void AddToQueue(XmlNode node)
+        private void addToQueue(XmlNode node)
         {
             if (node.Name == "sitemap")
             {
                 SitemapQueue.Enqueue(node["loc"].InnerText);
+                entries.Add(node["loc"].InnerText);
             }
             else if (node.Name == "url")
             {
-                Uri uri = new Uri(node["loc"].InnerText);
-                if (!DisallowList.Contains("/" + uri.Segments[1].Remove(uri.Segments[1].Length - 1)))
-                {
-                      Azure.crawlQueue.AddMessage(new CloudQueueMessage(node["loc"].InnerText));
-                }
+                //Uri uri = new Uri(node["loc"].InnerText);
+                //if (!DisallowList[getDomain(uri)].Contains("/" + uri.Segments[1].Remove(uri.Segments[1].Length - 1)))
+                //{
+                Azure.crawlQueue.AddMessage(new CloudQueueMessage(node["loc"].InnerText));
+                //}
             }
         }
-
+       
+        private string getDomain(Uri uri)
+        {
+            //gets the domain names to ignore the subdomain
+            return uri.Host.Split('.')[uri.Host.Split('.').Length - 2];
+        }
     
     }
 }

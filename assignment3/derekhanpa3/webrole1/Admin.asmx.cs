@@ -22,15 +22,12 @@ namespace WebRole1
     public class Admin : System.Web.Services.WebService
     {
         public static AzureStorageConnection Azure = new AzureStorageConnection();
+
         [WebMethod]
         public string StartCrawling()
         {
-            CloudQueueMessage messageStart = new CloudQueueMessage("Start: http://www.cnn.com, http://www.bleacherreport.com");
+            CloudQueueMessage messageStart = new CloudQueueMessage("Start: http://www.cnn.com, http://bleacherreport.com");
             Azure.commandQueue.AddMessage(messageStart);
-
-            //var URI = new Uri("http://www.cnn.com");
-            //var auth = URI.Authority;
-
             return "The crawler has started";
         }
 

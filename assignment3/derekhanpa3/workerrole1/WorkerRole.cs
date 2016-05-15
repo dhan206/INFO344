@@ -25,31 +25,35 @@ namespace WorkerRole1
         {
             AzureStorageConnection Azure = new AzureStorageConnection();
 
-            bool continute = false;
+            bool crawling = false;
+            HTMLCrawler htmlCrawler = new HTMLCrawler();
             while (true)
             {
-                CloudQueueMessage getCommandMessage = Azure.commandQueue.GetMessage();
-                //CloudQueueMessage getCrawlMessage = Azure.crawlQueue.GetMessage();
-                if (getCommandMessage != null)
+                CloudQueueMessage commandMessage = Azure.commandQueue.GetMessage();
+                if (commandMessage != null)
                 {
-                    string command = getCommandMessage.AsString;
-                    continute = (command != "stop"); //either start or stop
-                    string[] urls = command.Replace(",", "").Split(' ');
-                    XMLCrawler cnnCrawler = new XMLCrawler();
-                    cnnCrawler.CrawlRobots(urls[1]);
-                    XMLCrawler brCrawler = new XMLCrawler();
-                    brCrawler.CrawlRobots(urls[2]);
-                    Azure.commandQueue.DeleteMessage(getCommandMessage);
+                    string command = commandMessage.AsString;
+                    crawling = (command != "stop");
+                    if (crawling)
+                    {
+                        string[] urls = command.Replace(",", "").Split(' ');
+                        XMLCrawler xmlCrawler = new XMLCrawler();
+                        xmlCrawler.CrawlRobots(urls[2]); //crawl bleacherreport
+                        xmlCrawler.CrawlRobots(urls[1]); //crawl cnn
+                        htmlCrawler.DisallowList = xmlCrawler.DisallowList;
+                        Azure.commandQueue.DeleteMessage(commandMessage);
+                    }
                 }
-                //if (continute)
-                //{ 
-                //    if (getCrawlMessage != null)
-                //    {
-
-                //    }
-                //    Thread.Sleep(50);
-                //    Azure.crawlQueue.DeleteMessage(getCrawlMessage);
-                //}
+                if (crawling)
+                {
+                    CloudQueueMessage crawlMessage = Azure.crawlQueue.GetMessage();
+                    if (crawlMessage != null)
+                    {
+                        htmlCrawler.CrawlPage(crawlMessage.AsString);
+                    }
+                    Thread.Sleep(100);
+                    Azure.crawlQueue.DeleteMessage(crawlMessage);
+                }
             }
         }
 
