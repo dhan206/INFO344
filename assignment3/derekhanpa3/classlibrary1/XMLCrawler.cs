@@ -23,7 +23,7 @@ namespace ClassLibrary1
         private AzureStorageConnection Azure;
         private Queue<string> SitemapQueue;
         public Dictionary<string,HashSet<string>> DisallowList { get; private set; }
-        public List<string> entries = new List<string>();
+        public Queue<string> localQueue = new Queue<string>();
 
         public void CrawlRobots(string url)
         {
@@ -46,14 +46,13 @@ namespace ClassLibrary1
                     if ( !(sitemapUri.Host == "bleacherreport.com" && !sitemapUri.AbsolutePath.ToLower().Contains("nba")) )
                     {
                         SitemapQueue.Enqueue(sitemapUri.AbsoluteUri);
-                        entries.Add(sitemapUri.AbsoluteUri);
                     }
                 } else if (line.StartsWith(disallow))
                 {
                     DisallowList[getDomain(uri)].Add(line.Substring(line.IndexOf(disallow) + disallow.Length));
                 }
             }
-            //crawlSitemaps();
+            crawlSitemaps();
         }
 
         private void crawlSitemaps()
@@ -69,7 +68,7 @@ namespace ClassLibrary1
                 {
                     if (node["lastmod"] != null)
                     {
-                        if (DateTime.Compare(Convert.ToDateTime(node["lastmod"].InnerText), restriction) == 1)
+                        if (Convert.ToDateTime(node["lastmod"].InnerText) > restriction)
                         {
                             addToQueue(node);
                         }
@@ -79,7 +78,6 @@ namespace ClassLibrary1
                     }
                 }
             }
-             var one = 1;
         }
 
         private void addToQueue(XmlNode node)
@@ -87,15 +85,10 @@ namespace ClassLibrary1
             if (node.Name == "sitemap")
             {
                 SitemapQueue.Enqueue(node["loc"].InnerText);
-                entries.Add(node["loc"].InnerText);
             }
-            else if (node.Name == "url")
+            else
             {
-                //Uri uri = new Uri(node["loc"].InnerText);
-                //if (!DisallowList[getDomain(uri)].Contains("/" + uri.Segments[1].Remove(uri.Segments[1].Length - 1)))
-                //{
-                Azure.crawlQueue.AddMessage(new CloudQueueMessage(node["loc"].InnerText));
-                //}
+                Azure.crawlQueue.AddMessageAsync(new CloudQueueMessage(node["loc"].InnerText));
             }
         }
        

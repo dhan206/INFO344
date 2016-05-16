@@ -38,8 +38,8 @@ namespace WorkerRole1
                     {
                         string[] urls = command.Replace(",", "").Split(' ');
                         XMLCrawler xmlCrawler = new XMLCrawler();
-                        xmlCrawler.CrawlRobots(urls[2]); //crawl bleacherreport
                         xmlCrawler.CrawlRobots(urls[1]); //crawl cnn
+                        xmlCrawler.CrawlRobots(urls[2]); //crawl bleacherreport
                         htmlCrawler.DisallowList = xmlCrawler.DisallowList;
                         Azure.commandQueue.DeleteMessage(commandMessage);
                     }
@@ -51,6 +51,19 @@ namespace WorkerRole1
                     {
                         htmlCrawler.CrawlPage(crawlMessage.AsString);
                     }
+
+                    // Adds to the table 10 at a time
+                    if(htmlCrawler.PageBatch.Count == 10)
+                    {
+                        TableBatchOperation batchOperation = new TableBatchOperation();
+                        foreach(Page page in htmlCrawler.PageBatch)
+                        {
+                            batchOperation.InsertOrReplace(page);
+                        }
+                        Azure.pageTable.ExecuteBatch(batchOperation);
+                        htmlCrawler.PageBatch.Clear();
+                        htmlCrawler.BatchID = Guid.NewGuid().ToString();
+                    }
                     Thread.Sleep(100);
                     Azure.crawlQueue.DeleteMessage(crawlMessage);
                 }
@@ -61,6 +74,9 @@ namespace WorkerRole1
         {
             // Set the maximum number of concurrent connections
             ServicePointManager.DefaultConnectionLimit = 12;
+
+            // Speed up things
+            ServicePointManager.UseNagleAlgorithm = false;
 
             // For information on handling configuration changes
             // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,15 +18,20 @@ namespace ClassLibrary1
         private static CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
         public CloudQueue commandQueue = queueClient.GetQueueReference("commandqueue");
         public CloudQueue crawlQueue = queueClient.GetQueueReference("crawlqueue");
-        public CloudTable urlTable = tableClient.GetTableReference("urltable");
+        public CloudTable pageTable = tableClient.GetTableReference("pagetable");
         public CloudTable dashboardTable = tableClient.GetTableReference("dashboardtable");
+        public ServicePoint tableServicePoint = ServicePointManager.FindServicePoint(storageAccount.TableEndpoint);
+        public ServicePoint queueServicePoint = ServicePointManager.FindServicePoint(storageAccount.QueueEndpoint);
+
 
         public AzureStorageConnection()
         {
             commandQueue.CreateIfNotExists();
             crawlQueue.CreateIfNotExists();
-            urlTable.CreateIfNotExists();
+            pageTable.CreateIfNotExists();
             dashboardTable.CreateIfNotExists();
+            tableServicePoint.UseNagleAlgorithm = false;
+            queueServicePoint.UseNagleAlgorithm = false;
         }
     }
 }

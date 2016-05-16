@@ -47,10 +47,19 @@ namespace WebRole1
         }
 
         [WebMethod]
-        public string GetPageTitle()
+        public List<string> GetPageTitle()
         {
-            string title = "";
-            return title;
+            List<string> results = new List<string>();
+            TableQuery<Page> queryAll = new TableQuery<Page>()
+                .Where(
+                    TableQuery.GenerateFilterCondition("Title", QueryComparisons.Equal, "The reason behind Sydney's stunning sunsets - CNN.com")
+                );
+            foreach(Page entity in Azure.pageTable.ExecuteQuery(queryAll))
+            {
+                results.Add("Title: " + entity.Title + " URL: " + entity.URL);
+            }
+
+            return results;
         }
     }
 }

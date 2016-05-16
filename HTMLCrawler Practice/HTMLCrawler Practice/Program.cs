@@ -45,6 +45,8 @@ namespace HTMLCrawler_Practice
                 Console.WriteLine("Count: " + count + "*************************************************************************************************************");
             }
             Console.WriteLine(DateTime.Compare(Convert.ToDateTime("2016-04-30T23:58:58-05:00"), Convert.ToDateTime("03/01/2016")));
+            DateTime? dt = null;
+            Console.WriteLine(dt);
 
             Console.Read();
 
