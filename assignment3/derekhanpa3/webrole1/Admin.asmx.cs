@@ -8,6 +8,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Services;
 using ClassLibrary1;
+using System.Web.Script.Services;
+using System.Threading;
 
 namespace WebRole1
 {
@@ -18,7 +20,7 @@ namespace WebRole1
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
-    // [System.Web.Script.Services.ScriptService]
+    [System.Web.Script.Services.ScriptService]
     public class Admin : System.Web.Services.WebService
     {
         public static AzureStorageConnection Azure = new AzureStorageConnection();
@@ -26,39 +28,70 @@ namespace WebRole1
         [WebMethod]
         public string StartCrawling()
         {
-            CloudQueueMessage messageStart = new CloudQueueMessage("Start: http://www.cnn.com, http://bleacherreport.com");
-            Azure.commandQueue.AddMessage(messageStart);
+            Dashboard firstDashboard = new Dashboard();
+            firstDashboard.loadFirstDashboard();
+            Azure.commandQueue.AddMessage(new CloudQueueMessage("Start: http://www.cnn.com, http://bleacherreport.com"));
             return "The crawler has started";
         }
 
         [WebMethod]
         public string StopCrawling()
         {
-            CloudQueueMessage stopMessage = new CloudQueueMessage("stop");
-            Azure.commandQueue.AddMessage(stopMessage);
+            Azure.commandQueue.AddMessage(new CloudQueueMessage("stop"));
             return "The crawler has been stopped.";
         }
 
         [WebMethod]
-        public bool ClearIndex()
+        public string ClearIndex()
         {
-
-            return true;
+            Azure.commandQueue.AddMessage(new CloudQueueMessage("stop and clear"));
+            Thread.Sleep(2000); //wait for 2 seconds so the stop message is received
+            Azure.crawlQueue.Clear();
+            Azure.commandQueue.Clear();
+            Azure.dashboardTable.DeleteIfExists();
+            Azure.pageTable.DeleteIfExists();
+            return "Everything has been cleared.";
         }
 
         [WebMethod]
-        public List<string> GetPageTitle()
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public string GetPageTitle(string url)
         {
-            List<string> results = new List<string>();
-            TableQuery<Page> queryAll = new TableQuery<Page>()
-                .Where(
-                    TableQuery.GenerateFilterCondition("Title", QueryComparisons.Equal, "The reason behind Sydney's stunning sunsets - CNN.com")
-                );
-            foreach(Page entity in Azure.pageTable.ExecuteQuery(queryAll))
+            var input = url.Trim();
+            try
             {
-                results.Add("Title: " + entity.Title + " URL: " + entity.URL);
+                TableQuery<Page> getTitleWithURL = new TableQuery<Page>()
+                    .Where(TableQuery.GenerateFilterCondition("URL", QueryComparisons.Equal, input));
+                Page returnedPage = Azure.pageTable.ExecuteQuery(getTitleWithURL).ElementAt(0);
+                return returnedPage.Title;
+            } catch (Exception e)
+            {
+                return "Sorry, there are no pages with the url: '" + url + "' in my table";
             }
+        }
 
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public List<string> RefreshDashboard()
+        {
+            var results = new List<string>();
+            try
+            {
+                TableQuery<Dashboard> getDashboard = new TableQuery<Dashboard>()
+                    .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "OG"));
+                Dashboard currentDashboard = Azure.dashboardTable.ExecuteQuery(getDashboard).ElementAt(0);
+                results.Add(currentDashboard.State);
+                results.Add(currentDashboard.CPU.ToString());
+                results.Add(currentDashboard.RAM.ToString());
+                results.Add(currentDashboard.Crawled.ToString());
+                results.Add(currentDashboard.LastTen);
+                results.Add(currentDashboard.SizeQueue.ToString());
+                results.Add(currentDashboard.SizeIndex.ToString());
+                results.Add(currentDashboard.Errors);
+            } catch (Exception e)
+            {
+                return new List<string> { "Error, dashboard does not currently exist" };
+            }
             return results;
         }
     }

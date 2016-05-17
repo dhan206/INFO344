@@ -12,9 +12,10 @@
 
 .dashboard > div {
     height: 75px;
-    background-color: darkgray;
-    border-bottom: 1px solid white;
+    background-color: darkgrey;
+    border-top: 1px solid white;
     padding: 10px;
+    text-align: left;
 }
 
 .dashboard .errors {
@@ -26,7 +27,7 @@
     width: 100%;
 }
 
-.buttons > input {
+.buttons > input, .URLinput input {
     text-align: center;
     color: white;
     font-family: Helvetica, sans-serif;
@@ -38,33 +39,89 @@
     border-radius: 3px;
 }
 
-.buttons #start {
-    background-color: lightgreen;
+.URLinput {
+    height: 250px;
+    background-color: dimgray;
+    position: relative;
 }
 
-.buttons #start:hover {
+.URLinput #url {
+    width: 55vw;
+    margin: 20px;
+    text-align: center!important;
+    color: black;
+}
+
+#stateInfo .Initializing {
+    background-color: gold;
+}
+
+#stateInfo .Crawling {
     background-color: green;
 }
 
-.buttons #retrieve {
+#stateInfo .Idle {
+    background-color: gray;
+}
+
+.lastTen, .error {
+    min-height: 250px!important;
+    overflow-y: scroll;
+}
+
+.URLinput #search {
+    background-color: teal;
+}
+
+.URLinput #search:hover {
     background-color: lightblue;
+    color: darkgrey;
 }
 
-.buttons #retrieve:hover {
-    background-color: blue;
+.URLinput #refresh {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 50px;
+    width: 100px;
+    background-color: white;
+    margin: 5px;
+    color: black;
 }
 
-.buttons #clear {
-    background-color: lightcoral;
+.URLinput #refresh:hover {
+    cursor: pointer;
+}
+
+.buttons #start:hover {
+    background-color: lightgreen;
+    color: darkgray;
+}
+
+.buttons #start {
+    background-color: green;
+}
+
+.buttons #stop:hover {
+    background-color: yellow;
+    color: darkgray;
+}
+
+.buttons #stop {
+    background-color: gold;
 }
 
 .buttons #clear:hover {
+    background-color: lightcoral;
+    color: darkgray;
+}
+
+.buttons #clear {
     background-color: red;
 }
 
-.buttons > input:hover {
+.buttons > input:hover, .URLinput #search:hover {
     cursor: pointer;
-    background-color: darkgray;
 }
 
 

@@ -24,45 +24,59 @@ namespace WorkerRole1
         public override void Run()
         {
             AzureStorageConnection Azure = new AzureStorageConnection();
+            HTMLCrawler HtmlCrawler = new HTMLCrawler();
+            Dashboard Dashboard = new Dashboard();
 
             bool crawling = false;
-            HTMLCrawler htmlCrawler = new HTMLCrawler();
+            bool initialized = false;
             while (true)
             {
                 CloudQueueMessage commandMessage = Azure.commandQueue.GetMessage();
                 if (commandMessage != null)
                 {
                     string command = commandMessage.AsString;
-                    crawling = (command != "stop");
+                    crawling = (!command.StartsWith("stop"));
                     if (crawling)
                     {
+                        Dashboard.updateDashboard(crawling, initialized, 0, string.Empty, string.Empty);
                         string[] urls = command.Replace(",", "").Split(' ');
                         XMLCrawler xmlCrawler = new XMLCrawler();
-                        xmlCrawler.CrawlRobots(urls[1]); //crawl cnn
+                        Stopwatch sw = new Stopwatch();
+                        sw.Start();
+                        //xmlCrawler.CrawlRobots(urls[1]); //crawl cnn
                         xmlCrawler.CrawlRobots(urls[2]); //crawl bleacherreport
-                        htmlCrawler.DisallowList = xmlCrawler.DisallowList;
-                        Azure.commandQueue.DeleteMessage(commandMessage);
+                        sw.Stop();
+                        var elapsed = sw.Elapsed.ToString();
+                        HtmlCrawler.DisallowList = xmlCrawler.DisallowList;
+                        initialized = true;
                     }
+                    if (!command.Equals("stop and clear"))
+                    {
+                        Dashboard.updateDashboard(crawling, initialized, 0, string.Empty, string.Empty);
+                    }
+                    Azure.commandQueue.DeleteMessage(commandMessage);
                 }
                 if (crawling)
                 {
                     CloudQueueMessage crawlMessage = Azure.crawlQueue.GetMessage();
                     if (crawlMessage != null)
                     {
-                        htmlCrawler.CrawlPage(crawlMessage.AsString);
+                        HtmlCrawler.CrawlPage(crawlMessage.AsString);
                     }
 
                     // Adds to the table 10 at a time
-                    if(htmlCrawler.PageBatch.Count == 10)
+                    if(HtmlCrawler.PageBatch.Count == 10)
                     {
                         TableBatchOperation batchOperation = new TableBatchOperation();
-                        foreach(Page page in htmlCrawler.PageBatch)
+                        List<string> lastTenURLS = new List<string>();
+                        foreach(Page page in HtmlCrawler.PageBatch)
                         {
                             batchOperation.InsertOrReplace(page);
+                            lastTenURLS.Add(page.URL);
                         }
                         Azure.pageTable.ExecuteBatch(batchOperation);
-                        htmlCrawler.PageBatch.Clear();
-                        htmlCrawler.BatchID = Guid.NewGuid().ToString();
+                        Dashboard.updateDashboard(crawling, initialized, HtmlCrawler.PagesCrawled, string.Join(",", lastTenURLS.ToArray()), string.Join(",", HtmlCrawler.Errors.ToArray()));
+                        HtmlCrawler.ResetBatch();
                     }
                     Thread.Sleep(100);
                     Azure.crawlQueue.DeleteMessage(crawlMessage);

@@ -107,6 +107,7 @@
     <Content Include="Admin.asmx" />
     <Content Include="dashboard.html" />
     <Content Include="main.css" />
+    <Content Include="main.js" />
     <Content Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
