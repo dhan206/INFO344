@@ -43,14 +43,14 @@ namespace ClassLibrary1
             try
             {
                 Uri uri = new Uri(url);
-                this.PagesCrawled++;
                 if (!VisitedList.Contains(url))
                 {
+                    this.PagesCrawled++;
+                    VisitedList.Add(url);
                     if (DisallowList.ContainsKey(getDomain(uri)))
                     {
                         if (uri.Segments.Count() == 1 || !DisallowList[getDomain(uri)].Contains("/" + uri.Segments[1].Remove(uri.Segments[1].Length - 1)))
                         {
-                            VisitedList.Add(url);
                             var htmlpage = WebClient.DownloadString(url);
                             if (htmlpage.Contains("<!DOCTYPE html>")) //if its an html page
                             {
@@ -69,7 +69,7 @@ namespace ClassLibrary1
                                 foreach (HtmlNode link in HtmlDoc.DocumentNode.SelectNodes("//a[@href]"))
                                 {
                                     string hrefValue = link.GetAttributeValue("href", string.Empty);
-                                    if (hrefValue.StartsWith("/") || !hrefValue.Contains("http"))
+                                    if (hrefValue.StartsWith("/") || !hrefValue.Contains("http") || !hrefValue.Contains(".com"))
                                     {
                                         hrefValue = uri.Host + hrefValue;
                                     }

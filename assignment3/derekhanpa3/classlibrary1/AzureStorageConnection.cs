@@ -16,10 +16,10 @@ namespace ClassLibrary1
         private static CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["StorageConnectionString"]);
         private static CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
         private static CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
-        public CloudQueue commandQueue = queueClient.GetQueueReference("commandqueuepa3");
-        public CloudQueue crawlQueue = queueClient.GetQueueReference("crawlqueuepa3");
-        public CloudTable pageTable = tableClient.GetTableReference("pagetablepa3");
-        public CloudTable dashboardTable = tableClient.GetTableReference("dashboardtablepa3");
+        public CloudQueue commandQueue = queueClient.GetQueueReference("commandqueue");
+        public CloudQueue crawlQueue = queueClient.GetQueueReference("crawlqueue");
+        public CloudTable pageTable = tableClient.GetTableReference("pagetable");
+        public CloudTable dashboardTable = tableClient.GetTableReference("dashboardtable");
         public ServicePoint tableServicePoint = ServicePointManager.FindServicePoint(storageAccount.TableEndpoint);
         public ServicePoint queueServicePoint = ServicePointManager.FindServicePoint(storageAccount.QueueEndpoint);
 

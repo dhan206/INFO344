@@ -6,7 +6,7 @@
     font-size: 25px;
 }
 
-.dashboard {
+.dashboard { 
     width: 100%;
 }
 
@@ -20,6 +20,8 @@
 
 .dashboard .errors {
     background-color: red;
+    max-height: 300px!important;
+    overflow-y: scroll!important;
 }
 
 .dashboard span div {
