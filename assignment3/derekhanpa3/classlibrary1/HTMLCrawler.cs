@@ -31,22 +31,26 @@ namespace ClassLibrary1
         private static WebClient WebClient = new WebClient();
         private AzureStorageConnection Azure = new AzureStorageConnection();
         
+        /// <summary>
+        /// Crawls the page to retrieve urls, title, and date
+        /// </summary>
+        /// <param name="url"></param>
         public void CrawlPage(string url)
         {
             if (!url.Contains("http")) {
                 url = "http://" + url;
             }
-            Uri uri = new Uri(url);
-            this.PagesCrawled++;
-            if (!VisitedList.Contains(url))
+            try
             {
-                if (DisallowList.ContainsKey(getDomain(uri)))
+                Uri uri = new Uri(url);
+                this.PagesCrawled++;
+                if (!VisitedList.Contains(url))
                 {
-                    if (uri.Segments.Count() == 1 || !DisallowList[getDomain(uri)].Contains("/" + uri.Segments[1].Remove(uri.Segments[1].Length - 1)))
+                    if (DisallowList.ContainsKey(getDomain(uri)))
                     {
-                        VisitedList.Add(url);
-                        try
+                        if (uri.Segments.Count() == 1 || !DisallowList[getDomain(uri)].Contains("/" + uri.Segments[1].Remove(uri.Segments[1].Length - 1)))
                         {
+                            VisitedList.Add(url);
                             var htmlpage = WebClient.DownloadString(url);
                             if (htmlpage.Contains("<!DOCTYPE html>")) //if its an html page
                             {
@@ -65,11 +69,11 @@ namespace ClassLibrary1
                                 foreach (HtmlNode link in HtmlDoc.DocumentNode.SelectNodes("//a[@href]"))
                                 {
                                     string hrefValue = link.GetAttributeValue("href", string.Empty);
-                                    if (hrefValue.StartsWith("/"))
+                                    if (hrefValue.StartsWith("/") || !hrefValue.Contains("http"))
                                     {
                                         hrefValue = uri.Host + hrefValue;
                                     }
-                                    if (!VisitedList.Contains(hrefValue))
+                                    if (!VisitedList.Contains(hrefValue) && !hrefValue.Contains("javascript:void"))
                                     {
                                         Azure.crawlQueue.AddMessageAsync(new CloudQueueMessage(hrefValue));
                                     }
@@ -77,15 +81,17 @@ namespace ClassLibrary1
                                 PageBatch.Add(new Page(pageTitle, pageDate, url, BatchID));
                             }
                         }
-                        catch (Exception e)
-                        {
-                            Errors.Add(e.ToString() + " : " + url);
-                        }
                     }
                 }
-            }
+            } catch (Exception e)
+            {
+                Errors.Add(e.Message + "*" + url);
+            }   
         }
 
+        /// <summary>
+        /// Resets local variables after each batch insertion
+        /// </summary>
         public void ResetBatch()
         {
             this.PagesCrawled = 0;
@@ -94,6 +100,11 @@ namespace ClassLibrary1
             this.BatchID = Guid.NewGuid().ToString();
         }
 
+        /// <summary>
+        /// Gets the domain, exlcuding sub-domains
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
         private string getDomain(Uri uri)
         {
             //gets the domain names to ignore the subdomain

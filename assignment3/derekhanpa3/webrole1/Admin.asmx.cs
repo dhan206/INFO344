@@ -10,6 +10,7 @@ using System.Web.Services;
 using ClassLibrary1;
 using System.Web.Script.Services;
 using System.Threading;
+using System.Diagnostics;
 
 namespace WebRole1
 {
@@ -24,16 +25,24 @@ namespace WebRole1
     public class Admin : System.Web.Services.WebService
     {
         public static AzureStorageConnection Azure = new AzureStorageConnection();
+        public static Dashboard Dashboard = new Dashboard();
 
+        /// <summary>
+        /// Starts the webcrawler
+        /// </summary>
+        /// <returns>Confirmation that the crawler has started.</returns>
         [WebMethod]
         public string StartCrawling()
         {
-            Dashboard firstDashboard = new Dashboard();
-            firstDashboard.loadFirstDashboard();
+            Azure = new AzureStorageConnection();
             Azure.commandQueue.AddMessage(new CloudQueueMessage("Start: http://www.cnn.com, http://bleacherreport.com"));
             return "The crawler has started";
         }
 
+        /// <summary>
+        /// Stops the webcrawler
+        /// </summary>
+        /// <returns>Confirmation that the crawler has stopped</returns>
         [WebMethod]
         public string StopCrawling()
         {
@@ -41,18 +50,36 @@ namespace WebRole1
             return "The crawler has been stopped.";
         }
 
+        /// <summary>
+        /// Clears all of the queues and tables
+        /// </summary>
+        /// <returns>Confirmation that the tables and queues have been cleared.</returns>
         [WebMethod]
         public string ClearIndex()
         {
             Azure.commandQueue.AddMessage(new CloudQueueMessage("stop and clear"));
-            Thread.Sleep(2000); //wait for 2 seconds so the stop message is received
-            Azure.crawlQueue.Clear();
-            Azure.commandQueue.Clear();
-            Azure.dashboardTable.DeleteIfExists();
-            Azure.pageTable.DeleteIfExists();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            var loop = true;
+            while (loop)
+            {
+                if (sw.ElapsedMilliseconds > 10000)
+                {
+                    Azure.crawlQueue.DeleteIfExists();
+                    Azure.commandQueue.DeleteIfExists();
+                    Azure.dashboardTable.DeleteIfExists();
+                    Azure.pageTable.DeleteIfExists();
+                    loop = false;
+                }
+            }
             return "Everything has been cleared.";
         }
 
+        /// <summary>
+        /// Gets the page title of the given url
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns>Page title of given url</returns>
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string GetPageTitle(string url)
@@ -70,11 +97,17 @@ namespace WebRole1
             }
         }
 
+        /// <summary>
+        /// Refreshes the dashboard
+        /// </summary>
+        /// <returns>List of dashboard stats</returns>
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public List<string> RefreshDashboard()
         {
+            Azure = new AzureStorageConnection();
             var results = new List<string>();
+            Dashboard.refreshDashboard();
             try
             {
                 TableQuery<Dashboard> getDashboard = new TableQuery<Dashboard>()

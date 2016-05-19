@@ -22,12 +22,10 @@
     <div class="URLinput">
         <input id="url" type="text" name="retrieve" placeholder="Enter url..." />
         <input id="search" type="button" name="search" value="Search" />
-        <div id="results">
-        </div><input id="refresh" type="button" name="refresh" value="auto-&#8634;" />
+        <div id="results"></div>
     </div>
 
     <div class="dashboard">
-        
         <div class="state">
             State of web role(s): 
             <span id="stateInfo"></span>
@@ -36,6 +34,14 @@
             Machine Counters: 
             <span id="counterInfo"></span>
         </div>
+        <div class="sizeOfQueue">
+            Size of Queue:
+            <span id="queueInfo"></span>
+        </div>
+        <div class="sizeOfIndex">
+            Size of Index:
+            <span id="indexInfo"></span>
+        </div>
         <div class="crawled">
             #URLs Crawled: 
             <span id="crawledInfo"></span>
@@ -43,14 +49,6 @@
         <div class="lastTen">
             Last 10 URLs Crawled: 
             <span id="lastTenInfo"></span>
-        </div>
-        <div class="sizeOfQueue">
-            Size of Queue: 
-            <span id="queueInfo"></span>
-        </div>
-        <div class="sizeOfIndex">
-            Size of Index: 
-            <span id="indexInfo"></span>
         </div>
         <div class="errors">
             Errors:

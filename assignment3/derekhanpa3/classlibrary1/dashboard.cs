@@ -20,65 +20,111 @@ namespace ClassLibrary1
         public string State { get; set; }           //State of web role (initializing, crawling, or idle)
         public int CPU { get; set; }                //Machine CountersL CPU Utilization%
         public int RAM { get; set; }                //Machine Counters: RAM
-        public int Crawled { get; set; }            //#URLs Crawled
+        public int? Crawled { get; set; }            //#URLs Crawled
         public string LastTen { get; set; }         //Last 10 URLs crawled
         public int SizeQueue { get; set; }          //Size of queue
-        public int SizeIndex { get; set; }          //Size of index
+        public int? SizeIndex { get; set; }          //Size of index
         public string Errors { get; set; }          //Errors
         private AzureStorageConnection Azure = new AzureStorageConnection();
 
-
-        public void updateDashboard(bool crawling, bool initialized, int crawled, string lastTen, string errors)
+        /// <summary>
+        /// Update dashboard with new stats after table insertion
+        /// </summary>
+        /// <param name="crawling">is the web crawler crawling?</param>
+        /// <param name="initialized">has it been initialized?</param>
+        /// <param name="crawled">how many pages has it crawled?</param>
+        /// <param name="lastTen">what are the last ten urls crawled? comma seperated</param>
+        /// <param name="errors">what are the errors that came up? comma seperated</param>
+        public void updateDashboardNewStats(bool crawling, bool initialized, int crawled, string lastTen, string errors, int addedToTable)
         {
-            TableQuery<Dashboard> getDashboard = new TableQuery<Dashboard>()
-                .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "OG"));
-            Dashboard currentDashboard = Azure.dashboardTable.ExecuteQuery(getDashboard).ElementAt(0);
             PerformanceCounter ramCounter = new PerformanceCounter("Memory", "Available MBytes");
-            PerformanceCounter cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
             float ramUsage = ramCounter.NextValue();
-            float cpuUsage = cpuCounter.NextValue();
             CloudQueue temp = Azure.crawlQueue;
             temp.FetchAttributes();
 
+            TableQuery<Dashboard> getDashboard = new TableQuery<Dashboard>()
+                .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "OG"));
+            Dashboard currentDashboard = Azure.dashboardTable.ExecuteQuery(getDashboard).ElementAt(0);
             string state = string.Empty;
             if (crawling && !initialized)
             {
                 state = "Initializing";
-            } else if (crawling && initialized)
+            }
+            else if (crawling && initialized)
             {
                 state = "Crawling";
-            } else
+            }
+            else
             {
-                state = "Idle";
+                state = "Idling";
+                lastTen = currentDashboard.LastTen;
             }
 
-            Dashboard newDashboard = new Dashboard() {
+            Dashboard newDashboard = new Dashboard()
+            {
                 State = state,
-                CPU = (int)cpuUsage,
+                CPU = (int)getCPU(),
                 RAM = (int)ramUsage,
                 Crawled = currentDashboard.Crawled + crawled,
                 LastTen = lastTen,
                 SizeQueue = (int)temp.ApproximateMessageCount,
-                SizeIndex = Azure.pageTable.ExecuteQuery(new TableQuery()).Count(),
+                SizeIndex = currentDashboard.SizeIndex + addedToTable,
                 Errors = errors + "," + currentDashboard.Errors
             };
             Azure.dashboardTable.Execute(TableOperation.InsertOrReplace(newDashboard));
         }
 
-        public void loadFirstDashboard()
+        /// <summary>
+        /// Refreshes the dashboard, used to start first dashboard table entity
+        /// </summary>
+        public void refreshDashboard()
         {
-            Dashboard firstDashboard = new Dashboard()
+            PerformanceCounter ramCounter = new PerformanceCounter("Memory", "Available MBytes");
+            float ramUsage = ramCounter.NextValue();
+            CloudQueue temp = Azure.crawlQueue;
+            temp.FetchAttributes();
+
+            if (Azure.dashboardTable.ExecuteQuery(new TableQuery()).Count() == 0)
             {
-                State = "First",
-                CPU = 0,
-                RAM = 0,
-                Crawled = 0,
-                LastTen = string.Empty,
-                SizeQueue = 0,
-                SizeIndex = 0,
-                Errors = string.Empty
-            };
-            Azure.dashboardTable.Execute(TableOperation.InsertOrReplace(firstDashboard));
+                Dashboard newDashboard = new Dashboard()
+                {
+                    State = "Ready to start crawling",
+                    CPU = (int)getCPU(),
+                    RAM = (int)ramUsage,
+                    Crawled = 0,
+                    LastTen = string.Empty,
+                    SizeQueue = (int)temp.ApproximateMessageCount,
+                    SizeIndex = 0,
+                    Errors = string.Empty
+                };
+                Azure.dashboardTable.Execute(TableOperation.InsertOrReplace(newDashboard));
+            }
+            else
+            {
+                Dashboard newDashboard = new Dashboard() { 
+                    CPU = (int)getCPU(),
+                    RAM = (int)ramUsage,
+                    SizeQueue = (int)temp.ApproximateMessageCount
+                };
+                Azure.dashboardTable.Execute(TableOperation.InsertOrMerge(newDashboard));
+            }
+        }
+
+        /// <summary>
+        /// gets CPU used
+        /// </summary>
+        /// <returns>float of CPU Utilization</returns>
+        private float getCPU()
+        {
+            PerformanceCounter cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+            float cpuUsage = cpuCounter.NextValue();
+            float totalCPUCount = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                totalCPUCount += cpuCounter.NextValue();
+                System.Threading.Thread.Sleep(100);
+            }
+            return totalCPUCount / 10;
         }
     }
 }

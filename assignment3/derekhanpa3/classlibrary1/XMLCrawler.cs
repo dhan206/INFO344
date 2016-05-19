@@ -25,6 +25,10 @@ namespace ClassLibrary1
         public Dictionary<string,HashSet<string>> DisallowList { get; private set; }
         public Queue<string> localQueue = new Queue<string>();
 
+        /// <summary>
+        /// Crawls robots.txt with given url (eg http://ww.cnn.com)
+        /// </summary>
+        /// <param name="url"></param>
         public void CrawlRobots(string url)
         {
             WebClient webClient = new WebClient();
@@ -55,6 +59,9 @@ namespace ClassLibrary1
             crawlSitemaps();
         }
 
+        /// <summary>
+        /// Crawls the sitemaps
+        /// </summary>
         private void crawlSitemaps()
         {
             //restriction date: march 1st
@@ -80,6 +87,10 @@ namespace ClassLibrary1
             }
         }
 
+        /// <summary>
+        /// Adds found urls/xmls to appropriate queues
+        /// </summary>
+        /// <param name="node"></param>
         private void addToQueue(XmlNode node)
         {
             if (node.Name == "sitemap")
@@ -92,6 +103,11 @@ namespace ClassLibrary1
             }
         }
        
+        /// <summary>
+        /// Gets the domain, exlcuding sub-domains
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
         private string getDomain(Uri uri)
         {
             //gets the domain names to ignore the subdomain

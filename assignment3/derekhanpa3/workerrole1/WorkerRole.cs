@@ -38,23 +38,22 @@ namespace WorkerRole1
                     crawling = (!command.StartsWith("stop"));
                     if (crawling)
                     {
-                        Dashboard.updateDashboard(crawling, initialized, 0, string.Empty, string.Empty);
+                        Dashboard.updateDashboardNewStats(crawling, initialized, 0, string.Empty, string.Empty, 0);
                         string[] urls = command.Replace(",", "").Split(' ');
                         XMLCrawler xmlCrawler = new XMLCrawler();
-                        Stopwatch sw = new Stopwatch();
-                        sw.Start();
-                        //xmlCrawler.CrawlRobots(urls[1]); //crawl cnn
+                        xmlCrawler.CrawlRobots(urls[1]); //crawl cnn
                         xmlCrawler.CrawlRobots(urls[2]); //crawl bleacherreport
-                        sw.Stop();
-                        var elapsed = sw.Elapsed.ToString();
                         HtmlCrawler.DisallowList = xmlCrawler.DisallowList;
                         initialized = true;
                     }
-                    if (!command.Equals("stop and clear"))
+                    if (command.Equals("stop and clear"))
                     {
-                        Dashboard.updateDashboard(crawling, initialized, 0, string.Empty, string.Empty);
+                        initialized = false;
+                    } else
+                    {
+                        Dashboard.updateDashboardNewStats(crawling, initialized, 0, string.Empty, string.Empty, 0);
+                        Azure.commandQueue.DeleteMessage(commandMessage);
                     }
-                    Azure.commandQueue.DeleteMessage(commandMessage);
                 }
                 if (crawling)
                 {
@@ -62,24 +61,24 @@ namespace WorkerRole1
                     if (crawlMessage != null)
                     {
                         HtmlCrawler.CrawlPage(crawlMessage.AsString);
-                    }
 
-                    // Adds to the table 10 at a time
-                    if(HtmlCrawler.PageBatch.Count == 10)
-                    {
-                        TableBatchOperation batchOperation = new TableBatchOperation();
-                        List<string> lastTenURLS = new List<string>();
-                        foreach(Page page in HtmlCrawler.PageBatch)
+                        // Adds to the table 10 at a time
+                        if (HtmlCrawler.PageBatch.Count == 10)
                         {
-                            batchOperation.InsertOrReplace(page);
-                            lastTenURLS.Add(page.URL);
+                            TableBatchOperation batchOperation = new TableBatchOperation();
+                            List<string> lastTenURLS = new List<string>();
+                            foreach (Page page in HtmlCrawler.PageBatch)
+                            {
+                                batchOperation.InsertOrReplace(page);
+                                lastTenURLS.Add(page.URL);
+                            }
+                            Azure.pageTable.ExecuteBatch(batchOperation);
+                            Dashboard.updateDashboardNewStats(crawling, initialized, HtmlCrawler.PagesCrawled, string.Join(",", lastTenURLS.ToArray()), string.Join(",", HtmlCrawler.Errors.ToArray()), HtmlCrawler.PageBatch.Count);
+                            HtmlCrawler.ResetBatch();
                         }
-                        Azure.pageTable.ExecuteBatch(batchOperation);
-                        Dashboard.updateDashboard(crawling, initialized, HtmlCrawler.PagesCrawled, string.Join(",", lastTenURLS.ToArray()), string.Join(",", HtmlCrawler.Errors.ToArray()));
-                        HtmlCrawler.ResetBatch();
+                        Thread.Sleep(100);
+                        Azure.crawlQueue.DeleteMessage(crawlMessage);
                     }
-                    Thread.Sleep(100);
-                    Azure.crawlQueue.DeleteMessage(crawlMessage);
                 }
             }
         }
