@@ -44,6 +44,7 @@ namespace WorkerRole1
                         xmlCrawler.CrawlRobots(urls[1]); //crawl cnn
                         xmlCrawler.CrawlRobots(urls[2]); //crawl bleacherreport
                         HtmlCrawler.DisallowList = xmlCrawler.DisallowList;
+                        HtmlCrawler.VisitedList = xmlCrawler.VisitedList;
                         initialized = true;
                     }
                     if (command.Equals("stop and clear"))

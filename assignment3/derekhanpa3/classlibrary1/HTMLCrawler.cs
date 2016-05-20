@@ -18,11 +18,12 @@ namespace ClassLibrary1
             this.PageBatch = new List<Page>();
             this.BatchID = Guid.NewGuid().ToString();
             this.PagesCrawled = 0;
+            this.Errors = new List<string>();
         }
 
         public HashSet<string> VisitedList { get; set; }
         public Dictionary<string, HashSet<string>> DisallowList { get; set; }
-        public List<string> Errors = new List<string>();
+        public List<string> Errors { get; set; }
         public string BatchID { get; set; }
         public List<Page> PageBatch { get; set; }
         public int PagesCrawled { get; set; }
@@ -43,46 +44,44 @@ namespace ClassLibrary1
             try
             {
                 Uri uri = new Uri(url);
-                if (!VisitedList.Contains(url))
+                if (DisallowList.ContainsKey(getDomain(uri)))
                 {
                     this.PagesCrawled++;
-                    VisitedList.Add(url);
-                    if (DisallowList.ContainsKey(getDomain(uri)))
+                    if (uri.Segments.Count() == 1 || !DisallowList[getDomain(uri)].Contains("/" + uri.Segments[1].Remove(uri.Segments[1].Length - 1)))
                     {
-                        if (uri.Segments.Count() == 1 || !DisallowList[getDomain(uri)].Contains("/" + uri.Segments[1].Remove(uri.Segments[1].Length - 1)))
+                        var htmlpage = WebClient.DownloadString(url);
+                        if (htmlpage.Contains("<!DOCTYPE html>")) //if its an html page
                         {
-                            var htmlpage = WebClient.DownloadString(url);
-                            if (htmlpage.Contains("<!DOCTYPE html>")) //if its an html page
+                            HtmlDoc.LoadHtml(htmlpage);
+                            string pageTitle = HtmlDoc.DocumentNode.SelectSingleNode("//head/title").InnerText;
+                            string pageDate = string.Empty;
+                            foreach (HtmlNode meta in HtmlDoc.DocumentNode.SelectNodes("//head/meta"))
                             {
-                                HtmlDoc.LoadHtml(htmlpage);
-                                string pageTitle = HtmlDoc.DocumentNode.SelectSingleNode("//head/title").InnerText;
-                                string pageDate = string.Empty;
-                                foreach (HtmlNode meta in HtmlDoc.DocumentNode.SelectNodes("//head/meta"))
+                                string name = meta.GetAttributeValue("name", string.Empty);
+                                if (name == "lastmod")
                                 {
-                                    string name = meta.GetAttributeValue("name", string.Empty);
-                                    if (name == "lastmod")
-                                    {
-                                        pageDate = meta.GetAttributeValue("content", string.Empty);
-                                        break;
-                                    }
+                                    pageDate = meta.GetAttributeValue("content", string.Empty);
+                                    break;
                                 }
-                                foreach (HtmlNode link in HtmlDoc.DocumentNode.SelectNodes("//a[@href]"))
-                                {
-                                    string hrefValue = link.GetAttributeValue("href", string.Empty);
-                                    if (hrefValue.StartsWith("/") || !hrefValue.Contains("http") || !hrefValue.Contains(".com"))
-                                    {
-                                        hrefValue = uri.Host + hrefValue;
-                                    }
-                                    if (!VisitedList.Contains(hrefValue) && !hrefValue.Contains("javascript:void"))
-                                    {
-                                        Azure.crawlQueue.AddMessageAsync(new CloudQueueMessage(hrefValue));
-                                    }
-                                }
-                                PageBatch.Add(new Page(pageTitle, pageDate, url, BatchID));
                             }
+                            foreach (HtmlNode link in HtmlDoc.DocumentNode.SelectNodes("//a[@href]"))
+                            {
+                                string hrefValue = link.GetAttributeValue("href", string.Empty);
+                                if (hrefValue.StartsWith("/") || !hrefValue.Contains("http") && !hrefValue.Contains(".com"))
+                                {
+                                    hrefValue = uri.Host + hrefValue;
+                                }
+                                if (!VisitedList.Contains(hrefValue) && !hrefValue.Contains("javascript:void"))
+                                {
+                                    Azure.crawlQueue.AddMessageAsync(new CloudQueueMessage(hrefValue));
+                                    VisitedList.Add(hrefValue);
+                                }
+                            }
+                            PageBatch.Add(new Page(pageTitle, pageDate, url, BatchID));
                         }
                     }
                 }
+               
             } catch (Exception e)
             {
                 Errors.Add(e.Message + "*" + url);

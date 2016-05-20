@@ -18,12 +18,15 @@ namespace ClassLibrary1
             Azure = new AzureStorageConnection();
             SitemapQueue = new Queue<string>();
             DisallowList = new Dictionary<string, HashSet<string>>();
+            this.VisitedList = new HashSet<string>();
+            this.localQueue = new Queue<string>();
         }
 
         private AzureStorageConnection Azure;
         private Queue<string> SitemapQueue;
         public Dictionary<string,HashSet<string>> DisallowList { get; private set; }
-        public Queue<string> localQueue = new Queue<string>();
+        public Queue<string> localQueue { get; set; }
+        public HashSet<string> VisitedList { get; set; }
 
         /// <summary>
         /// Crawls robots.txt with given url (eg http://ww.cnn.com)
@@ -100,6 +103,7 @@ namespace ClassLibrary1
             else
             {
                 Azure.crawlQueue.AddMessageAsync(new CloudQueueMessage(node["loc"].InnerText));
+                VisitedList.Add(node["loc"].InnerText);
             }
         }
        
