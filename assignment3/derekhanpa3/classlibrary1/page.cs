@@ -9,10 +9,10 @@ namespace ClassLibrary1
 {
     public class Page : TableEntity
     {
-        public Page(string title, string date, string url, string batchID)
+        public Page(string word, string title, string date, string url)
         {
-            this.PartitionKey = batchID;
-            this.RowKey = Guid.NewGuid().ToString();
+            this.PartitionKey = word;
+            this.RowKey = Uri.EscapeDataString(url);
 
             this.Title = title;
             this.Date = date;

@@ -13,10 +13,18 @@
     <link rel="stylesheet" type="text/css" href="main.css"/>
 </head>
 <body>
-    <h1>Query Suggestions</h1>
+    <h1>Not Google</h1>
     <!-- input bar for user input -->
-    <input class="form-control" id="input" type="text"/>
+    <form role="form">
+        <div class="form-group has-feedback">
+            <input class="form-control input-lg" id="input" type="text" aria-describedby="sizing-addon1" />
+            <i class="glyphicon glyphicon-search form-control-feedback"></i>
+        </div>
+    </form>
+
     <!-- query suggestions will populate here -->
-    <div id="results"></div>
+    <div id="suggestions"></div>
+    <div id="player"></div>
+    <div id="urls"></div>
 </body>
 </html>

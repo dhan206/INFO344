@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "CloudVersionPA2", "CloudVersionPA2\CloudVersionPA2.ccproj", "{CCD74D62-B0DF-4649-8AA1-468985805F72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRole1", "WebRole1\WebRole1.csproj", "{1D81D049-EAC4-4EB4-9FEF-15E3805A88DF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CCD74D62-B0DF-4649-8AA1-468985805F72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCD74D62-B0DF-4649-8AA1-468985805F72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCD74D62-B0DF-4649-8AA1-468985805F72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCD74D62-B0DF-4649-8AA1-468985805F72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D81D049-EAC4-4EB4-9FEF-15E3805A88DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D81D049-EAC4-4EB4-9FEF-15E3805A88DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D81D049-EAC4-4EB4-9FEF-15E3805A88DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D81D049-EAC4-4EB4-9FEF-15E3805A88DF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

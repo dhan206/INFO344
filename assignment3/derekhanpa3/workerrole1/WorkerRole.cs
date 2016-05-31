@@ -50,7 +50,9 @@ namespace WorkerRole1
                     if (command.Equals("stop and clear"))
                     {
                         initialized = false;
-                    } else
+                        Thread.Sleep(180000); //sleep three minutes
+                    }
+                    else
                     {
                         Dashboard.updateDashboardNewStats(crawling, initialized, 0, string.Empty, string.Empty, 0);
                         Azure.commandQueue.DeleteMessage(commandMessage);
@@ -59,25 +61,21 @@ namespace WorkerRole1
                 if (crawling)
                 {
                     CloudQueueMessage crawlMessage = Azure.crawlQueue.GetMessage();
-                    if (crawlMessage != null)
+                    try
                     {
-                        HtmlCrawler.CrawlPage(crawlMessage.AsString);
-
-                        // Adds to the table 10 at a time
-                        if (HtmlCrawler.PageBatch.Count == 10)
+                        if (crawlMessage != null)
                         {
-                            TableBatchOperation batchOperation = new TableBatchOperation();
-                            List<string> lastTenURLS = new List<string>();
-                            foreach (Page page in HtmlCrawler.PageBatch)
-                            {
-                                batchOperation.InsertOrReplace(page);
-                                lastTenURLS.Add(page.URL);
-                            }
-                            Azure.pageTable.ExecuteBatch(batchOperation);
-                            Dashboard.updateDashboardNewStats(crawling, initialized, HtmlCrawler.PagesCrawled, string.Join(",", lastTenURLS.ToArray()), string.Join(",", HtmlCrawler.Errors.ToArray()), HtmlCrawler.PageBatch.Count);
-                            HtmlCrawler.ResetBatch();
+                            HtmlCrawler.CrawlPage(crawlMessage.AsString);
+                            Dashboard.updateDashboardNewStats(crawling, initialized, HtmlCrawler.PagesCrawled, 
+                                string.Join(",", HtmlCrawler.LastTen.ToArray()), 
+                                string.Join(",", HtmlCrawler.Errors.ToArray()), HtmlCrawler.AddedToTable);
+                            Thread.Sleep(50);
+                            Azure.crawlQueue.DeleteMessage(crawlMessage);
                         }
-                        Thread.Sleep(100);
+                    }
+                    catch (Exception e)
+                    {
+                        HtmlCrawler.AddError(e.Message + "*" + crawlMessage.AsString);
                         Azure.crawlQueue.DeleteMessage(crawlMessage);
                     }
                 }

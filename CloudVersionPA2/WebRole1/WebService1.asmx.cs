@@ -1,20 +1,16 @@
-﻿using System;
+﻿using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Web;
-using System.Web.Services;
-using System.Threading.Tasks;
-using System.Text;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-using System.Configuration;
 using System.Web.Script.Services;
-using System.Diagnostics;
-using System.Web.Script.Serialization;
-using System.Runtime;
+using System.Web.Services;
 
-namespace dhanINFO344PA2
+namespace WebRole1
 {
     /// <summary>
     /// Summary description for WebService1
@@ -38,6 +34,7 @@ namespace dhanINFO344PA2
         [WebMethod]
         public string BuildTrie()
         {
+            Dashboard dashboard = new Dashboard();
             if (!data.isEmpty)
             {
                 data = new Trie();
@@ -62,7 +59,9 @@ namespace dhanINFO344PA2
                         {
                             PerformanceCounter ramCounter = new PerformanceCounter("Memory", "Available MBytes");
                             float ramAvail = ramCounter.NextValue();
-                            if (ramAvail < 50) {
+                            if (ramAvail < 50)
+                            {
+                                dashboard.updateTitleStats(count, lastWord);
                                 return "Last word added: '" + lastWord + "'. Count: " + count + ". Trie built: " + !data.isEmpty;
                             }
                             check = 0;
@@ -74,6 +73,7 @@ namespace dhanINFO344PA2
                     }
                 }
             }
+            dashboard.updateTitleStats(count, lastWord);
             return "Last word added: '" + lastWord + "'. Count: " + count + ". Trie built: " + !data.isEmpty;
         }
 
@@ -107,7 +107,7 @@ namespace dhanINFO344PA2
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
                 ConfigurationManager.AppSettings["StorageConnectionString"]);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference("info344pa2");
+            CloudBlobContainer container = blobClient.GetContainerReference("wiki");
             if (container.Exists())
             {
                 foreach (IListBlobItem item in container.ListBlobs(null, false))

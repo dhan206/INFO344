@@ -4,7 +4,7 @@ $(document).ready(function () {
     console.log("Loaded.")
     var keepRefreshing = true;
     refreshDashboard();
-    setInterval(refreshDashboard, 2000); //auto refresh every 2 sec
+    setInterval(refreshDashboard, 1000); //auto refresh every 1 sec
 
     //Starts the crawler
     $("#start").click(function () {
@@ -66,7 +66,7 @@ $(document).ready(function () {
                 setTimeout(function () {
                     keepRefreshing = true;
                     document.getElementById("start").disabled = false;
-                }, 120000);
+                }, 240000);
             },
             error: function (e) {
                 console.log(e);
@@ -84,23 +84,22 @@ $(document).ready(function () {
         }
     });
 
+    function populateResults(msg) {
+        $("#results").empty();
+        var pageTitle = document.createElement("p");
+        pageTitle.innerHTML = msg[0].Title;
+        $("#results").append(pageTitle);
+    }
+
     //retrives the page title with given url
     function GetPageTitle() {
         $.ajax({
-            type: "POST",
-            url: "Admin.asmx/GetPageTitle",
-            data: JSON.stringify({ url: $("#url").val().trim() }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (msg) {
-                $("#results").empty();
-                var pageTitle = document.createElement("p");
-                pageTitle.innerHTML = msg.d;
-                $("#results").append(pageTitle);
-            },
-            error: function (e) {
-                console.log(e);
-            }
+            crossDomain: true,
+            url: 'Admin.asmx/GetPage',
+            dataType: 'jsonp',
+            contentType: 'application/json; charset=utf-8',
+            data: { query: $("#input").val().trim() },
+            success: populateResults
         });
     }
 
@@ -115,12 +114,10 @@ $(document).ready(function () {
                 success: function (msg) {
                     var stats = msg.d;
                     emptyDashboard();
-                    console.log("Dashboard has been refreshed.");
                     var stateInfo = document.createElement("div");
                     stateInfo.setAttribute("class", stats[0]);
                     stateInfo.innerHTML = stats[0];
                     $("#stateInfo").append(stateInfo);
-                    console.log(stats[0]);
 
                     var CPUInfo = document.createElement("div");
                     CPUInfo.innerHTML = "CPU Utilization: " + stats[1] + "%";
@@ -167,6 +164,14 @@ $(document).ready(function () {
                         errorList.appendChild(errorItem);
                     });
                     $("#errorInfo").append(errorList);
+
+                    var numTitlesInfo = document.createElement("div");
+                    numTitlesInfo.innerHTML = stats[8];
+                    $("#numTitlesInfo").append(numTitlesInfo);
+
+                    var lastTitleInfo = document.createElement("div");
+                    lastTitleInfo.innerHTML = stats[9];
+                    $("#lastTitleInfo").append(lastTitleInfo);
                 },
                 error: function (e) {
                     console.log(e);
@@ -174,6 +179,20 @@ $(document).ready(function () {
             });
         }
     }
+
+    $("#download").click(function () {
+        alert("Download has started... this may take a few minutes.");
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "http://derekhanpa4.cloudapp.net/WebService1.asmx/DownloadWiki", true);
+        xhttp.send();
+    })
+
+    $("#build").click(function () {
+        alert("Build has started... this may take a few minutes");
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "http://derekhanpa4.cloudapp.net/WebService1.asmx/BuildTrie", true);
+        xhttp.send();
+    })
 
     //Clears the dashboard
     function emptyDashboard() {
@@ -184,5 +203,7 @@ $(document).ready(function () {
         $("#queueInfo").empty();
         $("#indexInfo").empty();
         $("#errorInfo").empty();
+        $("#numTitlesInfo").empty();
+        $("#lastTitleInfo").empty();
     }
 });

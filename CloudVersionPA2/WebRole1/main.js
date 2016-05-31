@@ -1,8 +1,13 @@
 ﻿'use strict'; //always
 
 $(document).ready(function () {
+
+    window.query_cache = {};
+    window.player_cache = {};
+
     function populatePlayer(results) {
         if (JSON.stringify(results) != "false") {
+            player_cache[$("#input").val().toLowerCase().trim()] = results;
             var panelDiv = document.createElement('div');
             panelDiv.setAttribute('class', 'panel panel-default');
             var panelHead = document.createElement('div');
@@ -13,6 +18,28 @@ $(document).ready(function () {
             panelDiv.appendChild(panelTable);
             $('#player').append(panelDiv);
         }
+    }
+
+    function populateResults(results) {
+        results.forEach(function (item) { 
+            var pageResult = document.createElement('div');
+            var pageTitle = document.createElement('h3');
+            var pageLink = document.createElement('a');
+            pageLink.setAttribute('href', item.URL);
+            pageLink.setAttribute('alt', 'page link for ' + item.Title);
+            pageLink.setAttribute('target', '_blank');
+            pageLink.innerText = item.Title;
+            var pageDate = document.createElement('p');
+            if (item.Date != "") {
+                pageDate.innerText = 'Date: ' + item.Date;
+            } else {
+                pageDate.innerHTML = 'Date: not specified';
+            }
+            pageTitle.appendChild(pageLink);
+            pageResult.appendChild(pageTitle);
+            pageResult.appendChild(pageDate);
+            $("#pages").append(pageResult);
+        })
     }
 
     function createTable(results) {
@@ -167,46 +194,76 @@ $(document).ready(function () {
         var playerTO = document.createElement('td');
         playerTO.innerText = results['turnovers'];
         playerRow.appendChild(playerTO);
-        
+
         panelTable.appendChild(panelRow);
         panelTable.appendChild(playerRow);
         return panelTable;
     }
 
-    $("#input").keydown(function () {
-        $("#player").empty();
+    $('#input').typeahead({
+        minLength: 1,
+        highlight: true,
+        hint: true
+    }, {
+        limit: 10,
+        async: true,
+        source: function (query, syncResults, asyncResults) {
+            if (query_cache[query] !== undefined) {
+                syncResults(query_cache[query]);
+                return;
+            }
+            return $.ajax({
+                type: 'POST',
+                url: "WebService1.asmx/SearchTrie",
+                data: JSON.stringify({ prefix: query.toLowerCase().trim() }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    query_cache[query] = msg.d;
+                    return asyncResults(msg.d);
+                },
+                error: function (msg) {
+                    console.log(msg);
+                }
+            });
+        }
+    })
+
+    $("#input").keydown(function (event) {
+        if (event.keyCode == 13) {
+            $("#player").empty();
+            $("#pages").empty();
+            search();
+        }
     });
 
-    //ajax calls after each key up while a user types in the input field
-    $("#input").keyup(function () {
-    //    $.ajax({
-    //        type: "POST",
-    //        url: "getQuerySuggestions.asmx/SearchTrie",
-    //        data: JSON.stringify({ prefix: $("#input").val().toLowerCase().trim() }),
-    //        contentType: "application/json; charset=utf-8",
-    //        dataType: "json",
-    //        success: function (msg) {
-    //            //empties the results for new results
-    //            $("#results").empty();
-    //            //adds each result to the suggestion box, ensures 10 results are displayed.
-    //            for (var i = 0; i < msg.d.length; i++) {
-    //                var suggestion = document.createElement("div");
-    //                suggestion.innerHTML = msg.d[i]
-    //                $("#results").append(suggestion);
-    //            }
-    //        },
-    //        error: function (msg) {
-    //            console.log(msg);
-    //        }
-    //    });
+    $("#submit").click(function () {
+        $("#player").empty();
+        search();
+    })
 
+    function search() {
+        var userInput = $("#input").val().toLowerCase().trim();
         $.ajax({
             crossDomain: true,
-            url: 'http://ec2-52-40-84-72.us-west-2.compute.amazonaws.com/index.php',
+            url: 'http://dhanwebcrawler.cloudapp.net/Admin.asmx/GetPage',
             dataType: 'jsonp',
             contentType: 'application/json; charset=utf-8',
-            data: { name: $("#input").val().trim() },
-            success: populatePlayer
-        })
-    });
+            data: { query: userInput },
+            success: populateResults
+        });
+
+        if (player_cache[userInput] !== undefined) {
+            populatePlayer(player_cache[userInput]);
+        } else {
+            $.ajax({
+                crossDomain: true,
+                url: 'http://ec2-52-40-84-72.us-west-2.compute.amazonaws.com/index.php',
+                dataType: 'jsonp',
+                contentType: 'application/json; charset=utf-8',
+                data: { name: userInput },
+                success: populatePlayer
+            })
+        }
+    }
 });

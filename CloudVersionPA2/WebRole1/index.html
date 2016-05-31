@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Query Suggestions</title>
+    <meta charset="utf-8" />
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+    <!-- TypeAHead Library -->
+    <script src="typeahead.js"></script>
+    <!-- local javascript -->
+    <script type="text/javascript" src="main.js"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+    <!-- local css -->
+    <link rel="stylesheet" type="text/css" href="main.css" />
+</head>
+<body>
+    <img class="logo" src="logo.png" alt="Dingo logo" />
+    <!-- input bar for user input -->  
+    <div class="input-group">
+        <input class="form-control input-lg typeahead" id="input" type="text" aria-describedby="sizing-addon1" placeholder="search" />
+        <div class="input-group-btn">
+            <button class="btn btn-primary btn-lg" id="submit"><i class="glyphicon glyphicon-search"></i></button>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+  ( function() {
+    if (window.CHITIKA === undefined) { window.CHITIKA = { 'units' : [] }; };
+    var unit = {"calltype":"async[2]","publisher":"dhan206","width":160,"height":600,"sid":"Chitika Default"};
+    var placement_id = window.CHITIKA.units.length;
+    window.CHITIKA.units.push(unit);
+    document.write('<div class="advertisement" id="chitikaAdBlock-' + placement_id + '"></div>');
+}());
+    </script>
+    <script type="text/javascript" src="//cdn.chitika.net/getads.js" async></script>
+
+    <div class="results">
+        <!-- Player stats will populate here -->
+        <div id="player"></div>
+        <!-- Page results will populate here -->
+        <div id="pages"></div>
+    </div>
+</body>
+</html>

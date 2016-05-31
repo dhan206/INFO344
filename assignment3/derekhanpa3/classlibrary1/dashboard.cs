@@ -20,11 +20,13 @@ namespace ClassLibrary1
         public string State { get; set; }           //State of web role (initializing, crawling, or idle)
         public int CPU { get; set; }                //Machine CountersL CPU Utilization%
         public int RAM { get; set; }                //Machine Counters: RAM
-        public int? Crawled { get; set; }            //#URLs Crawled
+        public int? Crawled { get; set; }           //#URLs Crawled
         public string LastTen { get; set; }         //Last 10 URLs crawled
         public int SizeQueue { get; set; }          //Size of queue
-        public int? SizeIndex { get; set; }          //Size of index
+        public int? SizeIndex { get; set; }         //Size of index
         public string Errors { get; set; }          //Errors
+        public int? NumberOfTitles { get; set; }    //Number of titles in Trie (for query suggestion)
+        public string LastTitle { get; set; }       //Last title inserted into Trie
         private AzureStorageConnection Azure = new AzureStorageConnection();
 
         /// <summary>
@@ -63,15 +65,13 @@ namespace ClassLibrary1
             Dashboard newDashboard = new Dashboard()
             {
                 State = state,
-                CPU = (int)getCPU(),
-                RAM = (int)ramUsage,
                 Crawled = currentDashboard.Crawled + crawled,
                 LastTen = lastTen,
-                SizeQueue = (int)temp.ApproximateMessageCount,
                 SizeIndex = currentDashboard.SizeIndex + addedToTable,
-                Errors = errors + "," + currentDashboard.Errors
+                Errors = errors,
+                ETag = "*"
             };
-            Azure.dashboardTable.Execute(TableOperation.InsertOrReplace(newDashboard));
+            Azure.dashboardTable.Execute(TableOperation.Merge(newDashboard));
         }
 
         /// <summary>
@@ -95,18 +95,21 @@ namespace ClassLibrary1
                     LastTen = string.Empty,
                     SizeQueue = (int)temp.ApproximateMessageCount,
                     SizeIndex = 0,
-                    Errors = string.Empty
+                    Errors = string.Empty,
+                    NumberOfTitles = 0,
+                    LastTitle = string.Empty
                 };
                 Azure.dashboardTable.Execute(TableOperation.InsertOrReplace(newDashboard));
             }
             else
             {
-                Dashboard newDashboard = new Dashboard() { 
+                Dashboard newDashboard = new Dashboard() {
                     CPU = (int)getCPU(),
                     RAM = (int)ramUsage,
-                    SizeQueue = (int)temp.ApproximateMessageCount
+                    SizeQueue = (int)temp.ApproximateMessageCount,
+                    ETag = "*"
                 };
-                Azure.dashboardTable.Execute(TableOperation.InsertOrMerge(newDashboard));
+                Azure.dashboardTable.Execute(TableOperation.Merge(newDashboard));
             }
         }
 

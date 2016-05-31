@@ -17,15 +17,25 @@
         <input id="start" type="button" name="start" value="Start Crawler" />
         <input id="stop" type="button" name="stop" value="Stop Crawler" />
         <input id="clear" type="button" name="clear" value="Clear Everything" />
+        <input id="download" type="button" name="download" value="Download Wiki"/>
+        <input id="build" type="button" name="build" value="Build Trie" />
     </div>
 
     <div class="URLinput">
-        <input id="url" type="text" name="retrieve" placeholder="Enter url..." />
+        <input id="input" type="text" name="retrieve" placeholder="search... returns top result" />
         <input id="search" type="button" name="search" value="Search" />
         <div id="results"></div>
     </div>
 
     <div class="dashboard">
+        <div class="numTitles">
+            Number of Titles in Query Suggestion Trie:
+            <span id="numTitlesInfo"></span>
+        </div>
+        <div class="lastTitle">
+            Last Title Inserted into Query Suggestion Trie:
+            <span id="lastTitleInfo"></span>
+        </div>
         <div class="state">
             State of web role(s): 
             <span id="stateInfo"></span>
@@ -51,7 +61,7 @@
             <span id="lastTenInfo"></span>
         </div>
         <div class="errors">
-            Errors:
+            Last 50 Errors:
             <span id="errorInfo"></span>
         </div>
     </div>

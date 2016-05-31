@@ -1,19 +1,21 @@
 ﻿body {
     font-family: Helvetica, sans-serif;
-    background-color: cornflowerblue;
     padding: 3em;
 }
 
-#results {
+#suggestions {
     border-radius: 3px;
     background-color: #f2f2f2;
     overflow: hidden;
 }
 
-#results div {
+#suggestions div {
     margin: 1em 1em 1em 1em;
 }
 
 input {
     width: 50%;
+}
+
+.panel .table .td, .panel .table .th {
 }

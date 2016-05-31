@@ -49,6 +49,13 @@
     height: 55px;
     border: 1px solid lightgrey;
     border-radius: 3px;
+    background-color: cornflowerblue;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.buttons > input:hover {
+    background-color: darkblue;
 }
 
 .URLinput {
@@ -57,10 +64,11 @@
     position: relative;
 }
 
-.URLinput #url {
+.URLinput #input {
     width: 55vw;
     margin: 20px;
     text-align: center!important;
+    background-color: white;
     color: black;
 }
 

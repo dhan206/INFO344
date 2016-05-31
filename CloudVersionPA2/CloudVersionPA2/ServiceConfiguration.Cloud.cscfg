@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="CloudVersionPA2" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2015-04.2.6">
+  <Role name="WebRole1">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=dhanwebcrawlerstorage;AccountKey=qvoegBKdyKJAfo66PNE59lLTqiqbAXHb7InxzuvEvL94mniYYbcTBy45MZKtm7xGsRc4YSIY4DItSsF7HhSjug==" />
+      <Setting name="APPINSIGHTS_INSTRUMENTATIONKEY" value="98cc88ec-c4df-4805-9796-3d4fe4868fa2" />
+    </ConfigurationSettings>
+  </Role>
+</ServiceConfiguration>
